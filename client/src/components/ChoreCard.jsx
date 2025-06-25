@@ -25,5 +25,8 @@ const ChoreCard = ({ chore, isRunnerView, onAccept, onTrack, onComplete, onCance
           <button className="cancel" onClick={() => onCancel(chore.id)}>Cancel Chore</button>
         )}
       </div>
-        
+        </div>
+  );
+};
+    
 
