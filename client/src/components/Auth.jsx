@@ -26,10 +26,10 @@ const Auth = ({ onLogin }) => {
       return;
     }
 
-    // Simulate API call for login/signup
+    
     setTimeout(() => {
       if (isLogin) {
-        // Simple mock login logic
+        
         if (username === 'testuser' && password === 'password') {
           onLogin({ id: 'user123', name: username, email: 'test@example.com', role: 'seeker' });
         } else if (username === 'runner' && password === 'password') {
@@ -39,7 +39,7 @@ const Auth = ({ onLogin }) => {
           setMessageType('error');
         }
       } else {
-        // Simulate successful registration
+    
         setMessage('Registration successful! Please log in.');
         setMessageType('success');
         setUsername('');
