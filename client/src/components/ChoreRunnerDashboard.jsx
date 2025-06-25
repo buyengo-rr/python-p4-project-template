@@ -27,3 +27,11 @@ export default ChoreRunnerDashboard;
     />
   ))
 )}
+<h3 style={{ marginTop: '30px' }}>Available Chores ({availableChores.length})</h3>
+{availableChores.length === 0 ? (
+  <p className="message">No chores available right now. Check back later!</p>
+) : (
+  availableChores.map((chore) => (
+    <ChoreCard key={chore.id} chore={chore} isRunnerView={true} onAccept={acceptChore} />
+  ))
+)}
