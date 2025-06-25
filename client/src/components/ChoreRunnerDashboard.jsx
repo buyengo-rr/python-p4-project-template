@@ -49,3 +49,4 @@ const completedChores = availableChores.filter(c =>
     ))}
   </>
 )}
+import ChoreCard from './ChoreCard.jsx';
