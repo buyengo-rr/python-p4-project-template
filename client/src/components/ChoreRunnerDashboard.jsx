@@ -35,3 +35,17 @@ export default ChoreRunnerDashboard;
     <ChoreCard key={chore.id} chore={chore} isRunnerView={true} onAccept={acceptChore} />
   ))
 )}
+const completedChores = availableChores.filter(c => 
+  c.status === 'completed' || 
+  c.status === 'cancelled' || 
+  (c.runnerId === user.id && c.status === 'completed')
+);
+
+{completedChores.length > 0 && (
+  <>
+    <h3 style={{ marginTop: '30px' }}>Past Chores ({completedChores.length})</h3>
+    {completedChores.map((chore) => (
+      <ChoreCard key={chore.id} chore={chore} isRunnerView={true} />
+    ))}
+  </>
+)}
