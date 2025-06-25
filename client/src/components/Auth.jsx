@@ -51,4 +51,16 @@ const Auth = ({ onLogin }) => {
     }, 500);
   };
 
-  
+    return (
+    <div className="card">
+      <h2>{isLogin ? 'Login to ChoreRun' : 'Register for ChoreRun'}</h2>
+      {message && <div className={`message ${messageType}`}>{message}</div>}
+      <form onSubmit={handleSubmit}>
+        ...
+      </form>
+      <p style={{ textAlign: 'center', marginTop: '20px' }}>
+        ...
+      </p>
+    </div>
+  );
+};
