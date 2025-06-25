@@ -25,3 +25,11 @@ const LiveTracking = ({ chore, onBack }) => {
       return () => clearInterval(interval);
     }
   }, [chore.status]);
+  if (!chore) {
+    return (
+      <div className="card">
+        <h2>No Chore Selected for Tracking</h2>
+        <button onClick={onBack}>Back to Dashboard</button>
+      </div>
+    );
+  }
