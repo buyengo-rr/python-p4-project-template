@@ -12,3 +12,18 @@ const ChoreRunnerDashboard = ({ user }) => {
 };
 
 export default ChoreRunnerDashboard;
+<h3>My Accepted Chores ({myAcceptedChores.length})</h3>
+{myAcceptedChores.length === 0 ? (
+  <p className="message">You currently have no chores in progress. Pick one from below!</p>
+) : (
+  myAcceptedChores.map((chore) => (
+    <ChoreCard
+      key={chore.id}
+      chore={chore}
+      isRunnerView={true}
+      onTrack={onTrackChore}
+      onComplete={onCompleteChore}
+      onCancel={onCancelChore}
+    />
+  ))
+)}
