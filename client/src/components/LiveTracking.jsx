@@ -33,3 +33,14 @@ const LiveTracking = ({ chore, onBack }) => {
       </div>
     );
   }
+      <div className="live-tracking-map">
+        <div className="runner-path"></div>
+        <div className="map-marker start" style={{ left: '10%', top: '10%' }}>📍</div>
+        <div className="map-marker end" style={{ right: '10%', bottom: '10%' }}>🏁</div>
+        <div
+          className="map-marker runner"
+          style={{ left: `${runnerPosition.x}%`, top: `${runnerPosition.y}%` }}
+        >
+          🏃
+        </div>
+      </div>
