@@ -295,3 +295,39 @@ select {
 
 .chore-card-actions button.cancel { background: var(--danger-color); }
 .chore-card-actions button.cancel:hover { background: #d32f2f; }
+.profile-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.profile-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.profile-info p {
+  margin: 8px 0;
+  font-size: 1.1rem;
+  color: var(--text-color-dark);
+}
+
+.profile-role-toggle {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.profile-role-toggle button {
+  background: var(--primary-color);
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(106, 13, 173, 0.2);
+}
+
+.profile-role-toggle button.active {
+  background: var(--secondary-color);
+  color: var(--text-color-dark);
+  box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
+}
