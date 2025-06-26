@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary-color: #6a0dad;
-  --secondary-color: #ffc107;
-  --accent-color: #4CAF50;
-  --danger-color: #f44336;
+  --primary-color: #6a0dad; /* Deep Purple */
+  --secondary-color: #ffc107; /* Amber */
+  --accent-color: #4CAF50; /* Green for success */
+  --danger-color: #f44336; /* Red for errors */
   --text-color-dark: #333;
   --text-color-light: #f8f8f8;
   --bg-light: #f5f5f5;
@@ -15,4 +15,38 @@
   --shadow-medium: 0 6px 18px rgba(0, 0, 0, 0.12);
   --gradient-btn: linear-gradient(45deg, #6a0dad, #9b59b6);
   --gradient-btn-hover: linear-gradient(45deg, #9b59b6, #6a0dad);
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-light);
+  color: var(--text-color-dark);
+  line-height: 1.6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+#root {
+  width: 100%;
+  max-width: 900px;
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 80vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-weight: 600;
 }
