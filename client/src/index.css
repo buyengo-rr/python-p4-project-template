@@ -226,3 +226,72 @@ select {
   font-weight: 600;
   box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
 }
+.chore-card {
+  background-color: var(--card-bg);
+  border-radius: 15px;
+  box-shadow: var(--shadow-light);
+  padding: 20px;
+  margin-bottom: 15px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chore-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.chore-card h3 {
+  font-size: 1.3rem;
+  color: var(--primary-color);
+  margin-bottom: 5px;
+}
+
+.chore-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-color-dark);
+}
+
+.chore-card .status {
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+.chore-card .status.pending { color: #f2a600; }
+.chore-card .status.in-progress { color: #1976D2; }
+.chore-card .status.completed { color: var(--accent-color); }
+.chore-card .status.cancelled { color: var(--danger-color); }
+
+.chore-card .price {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.chore-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.chore-card-actions button {
+  flex: 1;
+  padding: 10px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+.chore-card-actions button.accept { background: var(--accent-color); }
+.chore-card-actions button.accept:hover { background: #45a049; }
+
+.chore-card-actions button.track { background: #1976D2; }
+.chore-card-actions button.track:hover { background: #1565C0; }
+
+.chore-card-actions button.cancel { background: var(--danger-color); }
+.chore-card-actions button.cancel:hover { background: #d32f2f; }
