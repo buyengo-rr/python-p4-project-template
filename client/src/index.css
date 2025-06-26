@@ -331,3 +331,62 @@ select {
   color: var(--text-color-dark);
   box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
 }
+.live-tracking-map {
+  width: 100%;
+  height: 300px;
+  background-color: #e0f2f7;
+  border-radius: 15px;
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+}
+
+.map-marker.start {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  font-size: 2.5rem;
+  color: var(--accent-color);
+  animation: bounce 1s infinite alternate;
+}
+
+.map-marker.end {
+  position: absolute;
+  bottom: 10%;
+  right: 10%;
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  animation: bounce 1s infinite alternate 0.5s;
+}
+
+.map-marker.runner {
+  position: absolute;
+  font-size: 2rem;
+  color: #ff5722;
+  transform: translate(-50%, -50%);
+  transition: all 0.5s linear;
+  z-index: 10;
+}
+
+.runner-path {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-image: linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.live-tracking-info {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}
