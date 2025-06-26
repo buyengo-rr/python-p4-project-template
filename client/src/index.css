@@ -138,3 +138,33 @@ select {
   margin-bottom: 20px;
   border: 1px solid var(--border-color);
 }
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-color-dark);
+}
+
+.message {
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.message.success {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+}
+
+.message.error {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--danger-color);
+  border: 1px solid var(--danger-color);
+}
