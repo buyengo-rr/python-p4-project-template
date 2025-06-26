@@ -91,3 +91,34 @@ const Auth = ({ onLogin }) => {
     </div>
   );
 };
+const UserProfile = ({ user, toggleRole, onBack }) => {
+  if (!user) {
+    return (
+      <div className="card">
+        <h2>Profile Not Available</h2>
+        <p>Please log in to view your profile.</p>
+        <button onClick={onBack}>Back to Dashboard</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card">
+      <h2 className="profile-section">Your Profile</h2>
+      <div className="profile-info">
+        <p><strong>Name:</strong> {user.name}</p>
+        <p><strong>Email:</strong> {user.email}</p>
+        <p><strong>Current Role:</strong> <span style={{ fontWeight: 'bold', color: user.role === 'seeker' ? '#1976D2' : '#4CAF50' }}>{user.role === 'seeker' ? 'Chore Seeker' : 'Chore Runner'}</span></p>
+      </div>
+      <div className="profile-role-toggle">
+        <button onClick={toggleRole} className={user.role === 'runner' ? 'active' : ''}>
+          Switch to Chore Runner
+        </button>
+        <button onClick={toggleRole} className={user.role === 'seeker' ? 'active' : ''}>
+          Switch to Chore Seeker
+        </button>
+      </div>
+      <button onClick={onBack} style={{ marginTop: '20px', width: '100%' }}>Back to Dashboard</button>
+    </div>
+  );
+};
