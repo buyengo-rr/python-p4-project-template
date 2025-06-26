@@ -168,3 +168,61 @@ select {
   color: var(--danger-color);
   border: 1px solid var(--danger-color);
 }
+.header {
+  background: var(--gradient-btn);
+  color: var(--text-color-light);
+  padding: 20px 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-light);
+}
+
+.header h1 {
+  color: var(--text-color-light);
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.header-buttons button {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.header-buttons button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+  box-shadow: none;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.nav-buttons button {
+  flex: 1;
+  max-width: 200px;
+  background: var(--primary-color);
+  color: var(--text-color-light);
+  box-shadow: 0 4px 8px rgba(106, 13, 173, 0.2);
+}
+
+.nav-buttons button:hover {
+  background: var(--gradient-btn-hover);
+}
+
+.nav-buttons button.active {
+  background: var(--secondary-color);
+  color: var(--text-color-dark);
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
+}
