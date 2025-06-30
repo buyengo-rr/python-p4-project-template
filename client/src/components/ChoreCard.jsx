@@ -1,32 +1,90 @@
 import React from 'react';
+import { MapPin, Clock, DollarSign, User, Star, AlertCircle } from 'lucide-react';
 
-const ChoreCard = ({ chore, isRunnerView, onAccept, onTrack, onComplete, onCancel }) => {
+const ChoreCard = ({ chore, onAccept, showAcceptButton = false }) => {
+  const getPriorityClass = (priority) => {
+    switch (priority) {
+      case 'high': return 'priority-high';
+      case 'medium': return 'priority-medium';
+      case 'low': return 'priority-low';
+      default: return '';
+    }
+  };
+
+  const getPriorityIcon = (priority) => {
+    if (priority === 'high') {
+      return <AlertCircle size={12} />;
+    }
+    return null;
+  };
+
   return (
-    <div className="chore-card">
-              <h3>{chore.title}</h3>
-      <p><strong>Description:</strong> {chore.description}</p>
-      <p><strong>Location:</strong> {chore.location}</p>
-      <p><strong>Estimated Time:</strong> {chore.time}</p>
-      <p><strong>Price:</strong> <span className="price">${chore.price.toFixed(2)}</span></p>
-      <p><strong>Status:</strong> <span className={`status ${chore.status.replace(' ', '-')}`}>{chore.status.toUpperCase()}</span></p>
-       {chore.postedByName && <p><strong>Posted By:</strong> {chore.postedByName}</p>}
-      {chore.runnerName && <p><strong>Assigned To:</strong> {chore.runnerName}</p>}
-       <div className="chore-card-actions">
-        {isRunnerView && chore.status === 'pending' && (
-          <button className="accept" onClick={() => onAccept(chore.id)}>Accept Chore</button>
+    <div className="chore-card card">
+      <div className="card-body">
+        <div className="chore-header">
+          <div>
+            <h3 className="chore-title">{chore.title}</h3>
+            <div className="chore-meta">
+              <span>
+                <User size={14} />
+                {chore.postedBy}
+              </span>
+              <span>
+                <Clock size={14} />
+                {chore.postedAt}
+              </span>
+            </div>
+          </div>
+          <div className="chore-price">
+            ${chore.price}
+          </div>
+        </div>
+
+        <p className="text-gray-600 mb-4">{chore.description}</p>
+
+        <div className="chore-meta mb-4">
+          <span>
+            <MapPin size={14} />
+            {chore.location}
+          </span>
+          <span>
+            <Clock size={14} />
+            {chore.timeEstimate}
+          </span>
+        </div>
+
+        <div className="chore-tags">
+          <span className="chore-tag">{chore.category}</span>
+          <span className={`chore-tag ${getPriorityClass(chore.priority)}`}>
+            {getPriorityIcon(chore.priority)}
+            {chore.priority} priority
+          </span>
+        </div>
+
+        {showAcceptButton && (
+          <div className="mt-6">
+            <button 
+              onClick={onAccept}
+              className="btn btn-primary"
+              style={{ width: '100%' }}
+            >
+              <DollarSign size={16} />
+              Accept Chore - ${chore.price}
+            </button>
+          </div>
         )}
-        {(chore.status === 'in-progress' || (isRunnerView && chore.runnerId && chore.status === 'completed')) && (
-          <button className="track" onClick={() => onTrack(chore)}>Track Chore</button>
-        )}
-        {isRunnerView && chore.status === 'in-progress' && (
-          <button className="accept" onClick={() => onComplete(chore.id)}>Mark as Complete</button>
-        )}
-        {!isRunnerView && (chore.status === 'pending' || chore.status === 'in-progress') && (
-          <button className="cancel" onClick={() => onCancel(chore.id)}>Cancel Chore</button>
+
+        {chore.status === 'accepted' && chore.acceptedBy && (
+          <div className="mt-4 p-3 bg-green-50 rounded-lg">
+            <div className="flex items-center gap-2 text-success">
+              <Star size={16} />
+              <span className="font-semibold">Accepted by {chore.acceptedBy}</span>
+            </div>
+          </div>
         )}
       </div>
-        </div>
+    </div>
   );
 };
-    
 
+export default ChoreCard;
