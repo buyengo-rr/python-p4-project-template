@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { MapPin, Clock, CheckCircle, User, Star, MessageCircle, Phone } from 'lucide-react';
 
 const TrackingPage = ({ chores, user }) => {
   const [selectedTab, setSelectedTab] = useState('active');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [progressData, setProgressData] = useState({});
 
   const userActiveChores = chores.filter(chore => 
     (chore.postedBy === user.name || chore.acceptedBy === user.name) && 
@@ -14,23 +18,72 @@ const TrackingPage = ({ chores, user }) => {
     chore.status === 'completed'
   );
 
-  const getChoreProgress = (chore) => {
-    // Mock progress data
-    const progressSteps = [
-      { step: 'Chore Accepted', completed: true, time: '10:30 AM' },
-      { step: 'Runner En Route', completed: true, time: '10:45 AM' },
-      { step: 'Arrived at Location', completed: true, time: '11:15 AM' },
-      { step: 'Task in Progress', completed: true, time: '11:20 AM' },
+  const fetchChoreProgress = useCallback(async (choreId) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/chores/${choreId}/progress`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch chore progress');
+      }
+
+      const data = await response.json();
+      setProgressData(prev => ({ ...prev, [choreId]: data }));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user.token]);
+
+  useEffect(() => {
+    userActiveChores.forEach(chore => {
+      fetchChoreProgress(chore.id);
+    });
+  }, [userActiveChores, fetchChoreProgress]);
+
+  const ChoreTracker = ({ chore }) => {
+    const progress = progressData[chore.id] || [
+      { step: 'Chore Accepted', completed: true, time: new Date().toLocaleTimeString() },
+      { step: 'Runner En Route', completed: false, time: null },
+      { step: 'Arrived at Location', completed: false, time: null },
+      { step: 'Task in Progress', completed: false, time: null },
       { step: 'Task Completed', completed: false, time: null },
       { step: 'Payment Processed', completed: false, time: null }
     ];
-    return progressSteps;
-  };
-
-  const ChoreTracker = ({ chore }) => {
-    const progress = getChoreProgress(chore);
     const currentStep = progress.findIndex(step => !step.completed);
     const isUserRunner = chore.acceptedBy === user.name;
+
+    const handleContact = async (type) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`/api/chores/${chore.id}/contact`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: JSON.stringify({ contactType: type, userId: user.id }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to initiate ${type}`);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     return (
       <div className="card">
@@ -43,19 +96,19 @@ const TrackingPage = ({ chores, user }) => {
               </p>
             </div>
             <div className="text-right">
-              <div className="chore-price">${chore.price}</div>
+              <div className="chore-price">${chore.price.toFixed(2)}</div>
               <div className="text-small text-gray-600 mt-1">{chore.timeEstimate}</div>
             </div>
           </div>
         </div>
 
         <div className="card-body">
+          {error && <div className="form-error text-center mb-4">{error}</div>}
           <div className="flex items-center gap-3 mb-6">
             <MapPin size={16} className="text-gray-400" />
             <span>{chore.location}</span>
           </div>
 
-          {/* Progress Timeline */}
           <div className="space-y-4">
             {progress.map((step, index) => (
               <div key={index} className="flex items-start gap-3">
@@ -83,14 +136,21 @@ const TrackingPage = ({ chores, user }) => {
             ))}
           </div>
 
-          {/* Contact Runner/Poster */}
           <div className="mt-6 pt-4 border-t border-gray-200">
             <div className="flex gap-3">
-              <button className="btn btn-outline btn-sm flex-1">
+              <button 
+                className="btn btn-outline btn-sm flex-1" 
+                onClick={() => handleContact('message')}
+                disabled={isLoading}
+              >
                 <MessageCircle size={16} />
                 Message {isUserRunner ? 'Poster' : 'Runner'}
               </button>
-              <button className="btn btn-secondary btn-sm flex-1">
+              <button 
+                className="btn btn-secondary btn-sm flex-1" 
+                onClick={() => handleContact('call')}
+                disabled={isLoading}
+              >
                 <Phone size={16} />
                 Call {isUserRunner ? 'Poster' : 'Runner'}
               </button>
@@ -116,11 +176,11 @@ const TrackingPage = ({ chores, user }) => {
             </div>
             <div className="text-right">
               <div className="font-semibold text-success">
-                {isUserRunner ? '+' : '-'}${chore.price}
+                {isUserRunner ? '+' : '-'}${chore.price.toFixed(2)}
               </div>
               <div className="flex items-center gap-1 text-small">
                 <Star size={12} className="text-warning" />
-                <span>5.0</span>
+                <span>{chore.rating || 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -132,13 +192,16 @@ const TrackingPage = ({ chores, user }) => {
             </span>
             <span className="flex items-center gap-1">
               <Clock size={12} />
-              Completed yesterday
+              Completed {new Date(chore.completedAt || Date.now()).toLocaleDateString()}
             </span>
           </div>
         </div>
       </div>
     );
   };
+
+  if (isLoading) return <div className="py-8 text-center">Loading tracking data...</div>;
+  if (error) return <div className="py-8 text-center text-error">{error}</div>;
 
   return (
     <div className="py-8">
@@ -150,7 +213,6 @@ const TrackingPage = ({ chores, user }) => {
           </p>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-1 mb-8 bg-gray-100 p-1 rounded-lg" style={{ width: 'fit-content' }}>
           <button
             onClick={() => setSelectedTab('active')}
@@ -159,6 +221,7 @@ const TrackingPage = ({ chores, user }) => {
                 ? 'bg-white text-primary shadow-sm' 
                 : 'text-gray-600 hover:text-gray-900'
             }`}
+            disabled={isLoading}
           >
             Active Chores ({userActiveChores.length})
           </button>
@@ -169,12 +232,12 @@ const TrackingPage = ({ chores, user }) => {
                 ? 'bg-white text-primary shadow-sm' 
                 : 'text-gray-600 hover:text-gray-900'
             }`}
+            disabled={isLoading}
           >
             Completed ({userCompletedChores.length})
           </button>
         </div>
 
-        {/* Content */}
         {selectedTab === 'active' ? (
           userActiveChores.length > 0 ? (
             <div className="space-y-6">
@@ -190,12 +253,12 @@ const TrackingPage = ({ chores, user }) => {
                 You don't have any chores in progress at the moment.
               </p>
               <div className="flex justify-center gap-4">
-                <button className="btn btn-primary">
+                <Link to="/post-chore" className="btn btn-primary">
                   Post a Chore
-                </button>
-                <button className="btn btn-secondary">
+                </Link>
+                <Link to="/browse-chores" className="btn btn-secondary">
                   Browse Chores
-                </button>
+                </Link>
               </div>
             </div>
           )

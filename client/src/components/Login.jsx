@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin, error: globalError }) => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  // Clear local error when global error changes
+  useEffect(() => {
+    if (globalError) {
+      setError(null);
+    }
+  }, [globalError]);
 
   const formik = useFormik({
     initialValues: {
@@ -25,26 +34,43 @@ const Login = ({ onLogin }) => {
       }
       return errors;
     },
-    onSubmit: async (values) => {
+    onSubmit: async (values, { setFieldError }) => {
       setLoading(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        const userData = {
-          id: 1,
-          name: 'John Doe',
-          email: values.email,
-          type: 'both', // 'poster', 'runner', or 'both'
-          rating: 4.8,
-          completedChores: 23,
-          joinedDate: '2024-01-15'
-        };
+      setError(null);
+
+      try {
+        // Call the parent's login function instead of handling fetch directly
+        await onLogin(values);
         
-        onLogin(userData);
+        // Only navigate if login was successful and no global error
+        if (!globalError) {
+          navigate('/dashboard');
+        }
+      } catch (err) {
+        console.error('Login submission error:', err);
+        
+        // Handle specific field errors
+        if (err.message.includes('email')) {
+          setFieldError('email', 'Invalid email address');
+        } else if (err.message.includes('password')) {
+          setFieldError('password', 'Invalid password');
+        } else {
+          setError(err.message || 'Login failed. Please try again.');
+        }
+      } finally {
         setLoading(false);
-      }, 1000);
+      }
     }
   });
+
+  // Clear errors when user starts typing
+  const handleInputChange = (e) => {
+    if (error) setError(null);
+    formik.handleChange(e);
+  };
+
+  // Determine which error to show (local takes precedence over global)
+  const displayError = error || globalError;
 
   return (
     <div className="py-20">
@@ -55,8 +81,27 @@ const Login = ({ onLogin }) => {
             <h2>Welcome Back</h2>
             <p className="text-gray-600">Sign in to your ChoreRun account</p>
           </div>
-          
+
           <div className="card-body">
+            {displayError && (
+              <div 
+                className="form-error text-center mb-4"
+                style={{
+                  backgroundColor: '#fee',
+                  border: '1px solid #fcc',
+                  borderRadius: '4px',
+                  padding: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                <AlertCircle size={16} />
+                {displayError}
+              </div>
+            )}
+            
             <form onSubmit={formik.handleSubmit}>
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
@@ -67,11 +112,13 @@ const Login = ({ onLogin }) => {
                   id="email"
                   name="email"
                   type="email"
-                  className="form-input"
+                  className={`form-input ${formik.touched.email && formik.errors.email ? 'error' : ''}`}
                   placeholder="Enter your email"
-                  onChange={formik.handleChange}
+                  onChange={handleInputChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.email}
+                  disabled={loading}
+                  autoComplete="email"
                 />
                 {formik.touched.email && formik.errors.email && (
                   <div className="form-error">{formik.errors.email}</div>
@@ -87,29 +134,50 @@ const Login = ({ onLogin }) => {
                   id="password"
                   name="password"
                   type="password"
-                  className="form-input"
+                  className={`form-input ${formik.touched.password && formik.errors.password ? 'error' : ''}`}
                   placeholder="Enter your password"
-                  onChange={formik.handleChange}
+                  onChange={handleInputChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.password}
+                  disabled={loading}
+                  autoComplete="current-password"
                 />
                 {formik.touched.password && formik.errors.password && (
                   <div className="form-error">{formik.errors.password}</div>
                 )}
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn btn-primary"
                 style={{ width: '100%' }}
-                disabled={loading}
+                disabled={loading || !formik.isValid || !formik.dirty}
               >
-                {loading ? <div className="loading" /> : <LogIn size={16} />}
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? (
+                  <>
+                    <div className="loading" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <LogIn size={16} />
+                    Sign In
+                  </>
+                )}
               </button>
             </form>
+
+            <div className="text-center mt-4">
+              <Link 
+                to="/forgot-password" 
+                className="text-sm text-gray-600 hover:text-primary"
+                style={{ textDecoration: 'none' }}
+              >
+                Forgot your password?
+              </Link>
+            </div>
           </div>
-          
+
           <div className="card-footer text-center">
             <p className="text-gray-600">
               Don't have an account?{' '}

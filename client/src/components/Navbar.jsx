@@ -1,11 +1,32 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useCallback } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Package, User, LogOut, Home, Plus, Search, BarChart3 } from 'lucide-react';
 
 const Navbar = ({ user, onLogout }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      onLogout();
+      navigate('/login');
+    } catch (err) {
+      console.error('Logout failed:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, onLogout, navigate]);
 
   return (
     <nav className="navbar">
@@ -64,12 +85,13 @@ const Navbar = ({ user, onLogout }) => {
             </li>
             <li>
               <button 
-                onClick={onLogout} 
+                onClick={handleLogout} 
                 className="btn btn-ghost btn-sm"
                 style={{ padding: '0.5rem', marginLeft: '1rem' }}
+                disabled={isLoading}
               >
                 <LogOut size={16} />
-                Logout
+                {isLoading ? 'Logging out...' : 'Logout'}
               </button>
             </li>
           </ul>

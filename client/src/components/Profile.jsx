@@ -1,202 +1,178 @@
 import React, { useState } from 'react';
-import { User, Star, Calendar, Award, Edit, Phone, Mail, MapPin } from 'lucide-react';
+// Removed unused 'User' import
 
-const Profile = ({ user }) => {
+const Profile = ({ user, onUserUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({
-    name: user.name,
-    email: user.email,
-    phone: user.phone || '(555) 123-4567',
-    location: 'San Francisco, CA'
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    bio: user?.bio || ''
   });
 
-  const handleSave = () => {
-    // Here you would typically save to backend
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onUserUpdate(formData);
     setIsEditing(false);
   };
 
-  const stats = [
-    { label: 'Chores Completed', value: user.completedChores, icon: Award },
-    { label: 'Average Rating', value: `${user.rating}★`, icon: Star },
-    { label: 'Member Since', value: new Date(user.joinedDate).getFullYear(), icon: Calendar },
-    { label: 'Total Earnings', value: '$1,247', icon: Award }
-  ];
-
-  const recentActivity = [
-    { action: 'Completed', chore: 'Grocery shopping at Whole Foods', amount: 35, date: '2 days ago' },
-    { action: 'Posted', chore: 'Pick up dry cleaning', amount: 15, date: '4 days ago' },
-    { action: 'Completed', chore: 'Dog walking service', amount: 20, date: '1 week ago' },
-    { action: 'Completed', chore: 'Return Amazon package', amount: 12, date: '1 week ago' }
-  ];
+  const handleCancel = () => {
+    setFormData({
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      bio: user?.bio || ''
+    });
+    setIsEditing(false);
+  };
 
   return (
     <div className="py-8">
-      <div className="container">
-        <div className="dashboard-grid">
-          {/* Profile Card */}
-          <div className="profile-card card">
-            <div className="card-body">
-              <div className="profile-avatar">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              
-              {isEditing ? (
+      <div className="container max-w-2xl">
+        <div className="card">
+          <div className="card-header">
+            <h2>Profile</h2>
+            {!isEditing && (
+              <button 
+                className="btn btn-primary"
+                onClick={() => setIsEditing(true)}
+              >
+                Edit Profile
+              </button>
+            )}
+          </div>
+          
+          <div className="card-body">
+            {isEditing ? (
+              <form onSubmit={handleSubmit}>
                 <div className="form-group">
+                  <label htmlFor="name">Name</label>
                   <input
                     type="text"
+                    id="name"
+                    name="name"
                     className="form-input"
-                    value={editData.name}
-                    onChange={(e) => setEditData({...editData, name: e.target.value})}
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
                   />
                 </div>
-              ) : (
-                <h2 className="profile-name">{user.name}</h2>
-              )}
 
-              <div className="profile-rating">
-                <div className="rating-stars">
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <Star 
-                      key={star} 
-                      size={20} 
-                      className={star <= Math.floor(user.rating) ? 'star' : 'text-gray-300'} 
-                      fill={star <= Math.floor(user.rating) ? 'currentColor' : 'none'}
-                    />
-                  ))}
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="form-input"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </div>
-                <span className="font-semibold">{user.rating} out of 5</span>
-              </div>
 
-              <div className="text-center mb-6">
-                <div className="chore-tag bg-primary text-white">
-                  {user.type === 'both' ? 'Poster & Runner' : 
-                   user.type === 'poster' ? 'Chore Poster' : 'Chore Runner'}
+                <div className="form-group">
+                  <label htmlFor="phone">Phone</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    className="form-input"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                  />
                 </div>
-              </div>
 
-              {isEditing ? (
-                <div className="flex gap-2">
-                  <button 
-                    onClick={handleSave}
-                    className="btn btn-primary btn-sm"
-                  >
+                <div className="form-group">
+                  <label htmlFor="bio">Bio</label>
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    className="form-input"
+                    rows="4"
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                    placeholder="Tell others about yourself..."
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <button type="submit" className="btn btn-primary">
                     Save Changes
                   </button>
                   <button 
-                    onClick={() => setIsEditing(false)}
-                    className="btn btn-ghost btn-sm"
+                    type="button" 
+                    className="btn btn-secondary"
+                    onClick={handleCancel}
                   >
                     Cancel
                   </button>
                 </div>
-              ) : (
-                <button 
-                  onClick={() => setIsEditing(true)}
-                  className="btn btn-outline btn-sm"
-                >
-                  <Edit size={16} />
-                  Edit Profile
-                </button>
-              )}
-            </div>
-          </div>
+              </form>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Name</label>
+                  <p className="text-lg">{user?.name || 'Not provided'}</p>
+                </div>
 
-          {/* Contact Info */}
-          <div className="card">
-            <div className="card-header">
-              <h3>Contact Information</h3>
-            </div>
-            <div className="card-body">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                  <Mail size={20} className="text-gray-400" />
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      className="form-input"
-                      value={editData.email}
-                      onChange={(e) => setEditData({...editData, email: e.target.value})}
-                    />
-                  ) : (
-                    <span>{user.email}</span>
-                  )}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Email</label>
+                  <p className="text-lg">{user?.email || 'Not provided'}</p>
                 </div>
-                
-                <div className="flex items-center gap-3">
-                  <Phone size={20} className="text-gray-400" />
-                  {isEditing ? (
-                    <input
-                      type="tel"
-                      className="form-input"
-                      value={editData.phone}
-                      onChange={(e) => setEditData({...editData, phone: e.target.value})}
-                    />
-                  ) : (
-                    <span>{editData.phone}</span>
-                  )}
+
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Phone</label>
+                  <p className="text-lg">{user?.phone || 'Not provided'}</p>
                 </div>
-                
-                <div className="flex items-center gap-3">
-                  <MapPin size={20} className="text-gray-400" />
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={editData.location}
-                      onChange={(e) => setEditData({...editData, location: e.target.value})}
-                    />
-                  ) : (
-                    <span>{editData.location}</span>
-                  )}
+
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Bio</label>
+                  <p className="text-lg">{user?.bio || 'No bio provided'}</p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Member Since</label>
+                  <p className="text-lg">
+                    {user?.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : 'Unknown'}
+                  </p>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="dashboard-grid mt-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="card text-center">
-              <div className="card-body">
-                <stat.icon size={32} className="text-primary mb-3" style={{margin: '0 auto'}} />
-                <div className="stats-number" style={{fontSize: '2rem', marginBottom: '0.5rem'}}>
-                  {stat.value}
-                </div>
-                <div className="stats-label text-gray-600">
-                  {stat.label}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Recent Activity */}
-        <div className="card mt-8">
+        {/* Stats Card */}
+        <div className="card mt-6">
           <div className="card-header">
-            <h3>Recent Activity</h3>
-            <p className="text-gray-600">Your recent chore activity</p>
+            <h3>Activity Stats</h3>
           </div>
           <div className="card-body">
-            <div className="flex flex-col gap-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <div className="font-semibold">
-                      {activity.action} "{activity.chore}"
-                    </div>
-                    <div className="text-small text-gray-600">{activity.date}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className={`font-semibold ${activity.action === 'Completed' ? 'text-success' : 'text-gray-700'}`}>
-                      {activity.action === 'Completed' ? '+' : ''}${activity.amount}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {activity.action === 'Completed' ? 'earned' : 'posted'}
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="dashboard-grid text-center">
+              <div>
+                <div className="text-2xl font-bold text-primary">{user?.choreStats?.posted || 0}</div>
+                <div className="text-sm text-gray-600">Chores Posted</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-success">{user?.choreStats?.completed || 0}</div>
+                <div className="text-sm text-gray-600">Chores Completed</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-accent">${user?.choreStats?.earned || 0}</div>
+                <div className="text-sm text-gray-600">Total Earned</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-secondary">{user?.choreStats?.rating || 0}/5</div>
+                <div className="text-sm text-gray-600">Average Rating</div>
+              </div>
             </div>
           </div>
         </div>

@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { Plus, DollarSign, MapPin, Clock, Tag, FileText } from 'lucide-react';
 
-const PostChore = ({ onAddChore }) => {
+const PostChore = ({ onAddChore, user }) => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const categories = [
@@ -65,16 +66,37 @@ const PostChore = ({ onAddChore }) => {
     },
     onSubmit: async (values) => {
       setLoading(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        onAddChore({
-          ...values,
-          price: parseFloat(values.price)
+      setError(null);
+
+      try {
+        const response = await fetch('/api/chores', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: JSON.stringify({
+            ...values,
+            price: parseFloat(values.price),
+            postedBy: user.name,
+            postedAt: new Date().toISOString(),
+            status: 'active'
+          }),
         });
-        setLoading(false);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to post chore');
+        }
+
+        const newChore = await response.json();
+        onAddChore(newChore);
         navigate('/dashboard');
-      }, 1000);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     }
   });
 
@@ -89,6 +111,7 @@ const PostChore = ({ onAddChore }) => {
           </div>
           
           <div className="card-body">
+            {error && <div className="form-error text-center mb-4">{error}</div>}
             <form onSubmit={formik.handleSubmit}>
               <div className="form-group">
                 <label htmlFor="title" className="form-label">
@@ -104,6 +127,7 @@ const PostChore = ({ onAddChore }) => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.title}
+                  disabled={loading}
                 />
                 {formik.touched.title && formik.errors.title && (
                   <div className="form-error">{formik.errors.title}</div>
@@ -122,6 +146,7 @@ const PostChore = ({ onAddChore }) => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.description}
+                  disabled={loading}
                 />
                 {formik.touched.description && formik.errors.description && (
                   <div className="form-error">{formik.errors.description}</div>
@@ -146,6 +171,7 @@ const PostChore = ({ onAddChore }) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.price}
+                    disabled={loading}
                   />
                   {formik.touched.price && formik.errors.price && (
                     <div className="form-error">{formik.errors.price}</div>
@@ -164,6 +190,7 @@ const PostChore = ({ onAddChore }) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.timeEstimate}
+                    disabled={loading}
                   >
                     <option value="">Select time estimate</option>
                     <option value="15 mins">15 minutes</option>
@@ -193,6 +220,7 @@ const PostChore = ({ onAddChore }) => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.location}
+                  disabled={loading}
                 />
                 {formik.touched.location && formik.errors.location && (
                   <div className="form-error">{formik.errors.location}</div>
@@ -212,6 +240,7 @@ const PostChore = ({ onAddChore }) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.category}
+                    disabled={loading}
                   >
                     {categories.map(category => (
                       <option key={category} value={category}>{category}</option>
@@ -230,6 +259,7 @@ const PostChore = ({ onAddChore }) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.priority}
+                    disabled={loading}
                   >
                     {priorities.map(priority => (
                       <option key={priority.value} value={priority.value}>
@@ -253,7 +283,7 @@ const PostChore = ({ onAddChore }) => {
                   type="submit" 
                   className="btn btn-primary"
                   style={{ flex: 1 }}
-                  disabled={loading}
+                  disabled={loading || !formik.isValid}
                 >
                   {loading ? <div className="loading" /> : <Plus size={16} />}
                   {loading ? 'Posting Chore...' : 'Post Chore'}
